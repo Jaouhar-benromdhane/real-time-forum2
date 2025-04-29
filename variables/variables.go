@@ -1,5 +1,7 @@
 package variables
 
+import "time"
+
 type User struct {
 	ID        string `json:"id"`
 	Nickname  string `json:"nickname"`
@@ -27,9 +29,17 @@ type UserStatus struct {
 }
 
 type Message struct {
-	Type 	  string    `json:"type"`
-	Sender    string    `json:"sender"`
-	Receiver  string    `json:"receiver"`
+	Type     string   `json:"type"`
+	Sender   string   `json:"sender"`
+	Receiver string   `json:"receiver"`
+	Content  string   `json:"content"`
+	Userlist []string `json:"userlist"`
+}
+
+type Comment struct {
+	ID        int       `json:"id"`
+	PostID    int       `json:"post_id"`
+	UserID    string    `json:"user_id"` // <- modifié ici pour que ça soit un string
 	Content   string    `json:"content"`
-	Userlist  []string  `json:"userlist"`
+	CreatedAt time.Time `json:"created_at"`
 }

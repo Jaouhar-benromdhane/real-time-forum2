@@ -11,15 +11,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
 func main() {
 	database.InitDb()
 	hub := utils.NewHub()
 
-    r := mux.NewRouter().StrictSlash(true)
-    r.PathPrefix("/static/").Handler((http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))))
+	r := mux.NewRouter().StrictSlash(true)
+	r.PathPrefix("/static/").Handler((http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))))
 	r.HandleFunc("/", index).Methods("GET")
-    //r.HandleFunc("/home", handler.Home).Methods("GET")
+	//r.HandleFunc("/home", handler.Home).Methods("GET")
 	r.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
 		handler.Home(w, r)
 	})
@@ -34,9 +33,11 @@ func main() {
 
 	r.HandleFunc("/refreshUsers", handler.RefreshUser).Methods("GET")
 
+	r.HandleFunc("/comment", handler.CreateComment).Methods("POST")
+	r.HandleFunc("/comment/{id}", handler.GetComments).Methods("GET")
 
-    fmt.Printf("Server Started on http://localhost%s/\n", ":8080")
-    http.ListenAndServe(":8080", r)
+	fmt.Printf("Server Started on http://localhost%s/\n", ":8080")
+	http.ListenAndServe(":8080", r)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {

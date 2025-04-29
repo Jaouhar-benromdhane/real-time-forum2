@@ -1,23 +1,3 @@
-// export function loadHome() {
-//   fetch("/home")
-//     .then((response) => {
-//       if (!response.ok) throw new Error("Erreur lors du chargement des posts");
-//       console.log(response.json())
-//       return response.json(); // car /home renvoie du HTML
-//     })
-//     .then((posts) => {
-//       console.log("HTML reçu :", html);
-//       const app = document.getElementById("app");
-//       app.innerHTML = formatPosts(posts);
-
-//     })
-//     .catch((error) => {
-//       console.error("Erreur :", error);
-//       document.getElementById("app").innerHTML =
-//         "<p>Impossible de charger les posts.</p>";
-//     });
-// }
-
 export async function loadHome() {
   let resp = await fetch("/home");
   let r = await resp.json();
@@ -40,21 +20,31 @@ function formatPosts(posts) {
     let post = posts[i];
     let postHTML = `
       <div class="post">
-      <h1 class="title">${post.title}</h1>
-      <h2 class="user">${post.user.nickname}</h2>
-    
-      <p class="content">${post.content}</p>
+        <h1 class="title">${post.title}</h1>
+        <h2 class="user">${post.user.nickname}</h2>
+        <p class="content">${post.content}</p>
+        <div class="footer">
+          <span class="date">${post.date}</span>
+          <span class="category">${post.category}</span>
+        </div>
 
-      <div class="footer">
-        <span class="date">${post.date}</span>
-        <span class="category">${post.category}</span>
+        <!-- Zone des commentaires -->
+        <div class="comments" id="comments-${post.id}">
+          <p>Chargement des commentaires...</p>
+        </div>
+
+        <!-- Formulaire de commentaire -->
+        <form class="comment-form" data-post-id="${post.id}">
+          <input type="text" name="content" placeholder="Ajouter un commentaire" required />
+          <button type="submit">Envoyer</button>
+        </form>
       </div>
-    </div>
     `;
     result += postHTML;
   }
   return result;
 }
+
 
 function formatUsers(users) {
   let result = "";
@@ -96,3 +86,5 @@ export function displayUsers() {
       // Ne pas vider le conteneur en cas d'erreur pour éviter un flash d'interface
     });
 }
+
+

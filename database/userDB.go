@@ -131,9 +131,9 @@ func GetCurrentUser(r *http.Request) *variables.User {
 
 }
 
-func GetAllUsers( r *http.Request) []map[string]any {
+func GetAllUsers(r *http.Request) []map[string]any {
 	user := GetCurrentUser(r)
-	if user == nil {	
+	if user == nil {
 		return nil
 	}
 	rows, err := DB.Query("SELECT * FROM users WHERE id != ?", user.ID)
@@ -144,7 +144,7 @@ func GetAllUsers( r *http.Request) []map[string]any {
 	defer rows.Close()
 
 	var users []map[string]any
-	
+
 	for rows.Next() {
 		var user variables.User
 		err := rows.Scan(&user.ID, &user.Nickname, &user.Age, &user.Gender, &user.FirstName, &user.LastName, &user.Email, &user.Password)
@@ -153,9 +153,9 @@ func GetAllUsers( r *http.Request) []map[string]any {
 			continue
 		}
 		users = append(users, map[string]any{
-		"user" : user,
-		"connected": checkIfUserConnected(user.ID),})
-}
+			"user":      user,
+			"connected": checkIfUserConnected(user.ID)})
+	}
 	if err := rows.Err(); err != nil {
 		log.Println("Error iterating over users:", err)
 		return nil
@@ -181,7 +181,6 @@ func checkIfUserConnected(user_id string) bool {
 	return false
 
 }
-
 
 func GetUserByID(id string) *variables.User {
 
@@ -262,7 +261,7 @@ func DeleteSessionFromUserID(userID string) {
 		log.Fatal(err)
 	}
 	fmt.Println("Session deleted")
-	
+
 }
 
 func DeleteSession(session_token string) {
@@ -277,7 +276,7 @@ func DeleteSession(session_token string) {
 		log.Fatal(err)
 	}
 	fmt.Println("Session deleted")
-	
+
 }
 
 func GetNicknameByUserId(userID string) string {
@@ -291,7 +290,7 @@ func GetNicknameByUserId(userID string) string {
 	err := DB.QueryRow(GetData, userID).Scan(&nickname)
 	if err != nil {
 	}
-	return nickname	
+	return nickname
 
 }
 
@@ -307,4 +306,42 @@ func GetUserIdBySession(id string) string {
 	if err != nil {
 	}
 	return userID
+}
+
+func InsertComment(comment *variables.Comment) {
+	query := `
+	INSERT INTO comments (content, post_id, user_id,created_at)
+	VALUES (?, ?, ?,?);`
+	_, err := DB.Exec(query, comment.Content, comment.PostID, comment.UserID, time.Now())
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Récupérer les commentaires d’un post
+func GetCommentsByPostID(postID int) []variables.Comment {
+	query := `
+	SELECT id, content, post_id, user_id, created_at
+	FROM comments
+	WHERE post_id = ?
+	ORDER BY created_at ASC;
+	`
+
+	rows, err := DB.Query(query, postID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var comments []variables.Comment
+
+	for rows.Next() {
+		var c variables.Comment
+		err := rows.Scan(&c.ID, &c.Content, &c.PostID, &c.UserID, &c.CreatedAt)
+		if err != nil {
+			log.Fatal(err)
+		}
+		comments = append(comments, c)
+	}
+	return comments
 }
