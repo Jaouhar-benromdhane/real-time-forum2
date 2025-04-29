@@ -9,7 +9,6 @@ import (
 
 func Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("session")
-
 	database.DeleteSession(cookie.Value)
 	//cookie.MaxAge = -1 // Supprime le cookie
 	cookie.Value = ""

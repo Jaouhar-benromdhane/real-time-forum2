@@ -25,7 +25,7 @@ export async function loadHome() {
   const app = document.getElementById("app");
   if (r.Posts) {
     app.innerHTML = formatPosts(posts);
-    displayUsers();
+    displayUsers(); // maybe to delete
     document.querySelector(".online").style.display = "block";
     document.querySelector(".offline").style.display = "none";
   } else {
@@ -78,17 +78,21 @@ function formatUsers(users) {
 export function displayUsers() {
   fetch("/refreshUsers")
     .then((response) => {
-      if (!response.ok)
+      if (!response.ok) {
         throw new Error("Erreur lors du chargement des utilisateurs");
+      }
       return response.json();
     })
-    .then((users) => {
-      const app = document.getElementById("users");
-      app.innerHTML = formatUsers(users.Users);
+    .then((data) => {
+      if (data.Users && Array.isArray(data.Users)) {
+        const app = document.getElementById("users");
+        app.innerHTML = formatUsers(data.Users);
+      } else {
+        console.warn("Format de données inattendu:", data);
+      }
     })
     .catch((error) => {
-      const users = document.getElementById("users");
-      users.innerHTML = "";
-      console.log(error);
+      console.error("Erreur lors de la mise à jour des utilisateurs:", error);
+      // Ne pas vider le conteneur en cas d'erreur pour éviter un flash d'interface
     });
 }

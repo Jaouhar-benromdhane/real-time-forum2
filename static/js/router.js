@@ -2,11 +2,13 @@ import { loadHome } from "./home.js";
 import { loadLogin } from "./login.js";
 import { loadRegister } from "./register.js";
 import { createPost } from "./post.js";
+import { ws } from "./websocket.js";
 
 window.logout = async function () {
   const res = await fetch("/logout", { method: "POST" });
   if (res.ok) {
     navigateTo("login");
+    ws.send(JSON.stringify({ type: "logout" }));
   } else {
     alert("Erreur lors de la déconnexion");
   }

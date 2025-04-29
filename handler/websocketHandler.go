@@ -15,6 +15,13 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+type Message struct {
+	Type     string `json:"type"`
+	Sender   string `json:"sender"`
+	Receiver string `json:"receiver"`
+	Content  string `json:"content"`
+}
+
 func WebSocketHandler(w http.ResponseWriter, r *http.Request, hub *utils.Hub) {
 	// Upgrade the connection to a WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -36,20 +43,24 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request, hub *utils.Hub) {
 	hub.RegisterClient(conn, nickname)
 
 	// Broadcast the message to all clients
-	hub.BroadcastMessage([]byte(fmt.Sprintf("%s has joined the chat", nickname)))//probleme a voir
+	hub.BroadcastMessage([]byte(fmt.Sprintf("%s has joined the chat", nickname)))
 	fmt.Println("Client connected:", nickname)
-	
 
 	// Listen for messages from the client
 	for {
-		_, _, err := conn.ReadMessage()
+		var message Message
+		err = (conn.ReadJSON(&message))
 		if err != nil {
-			fmt.Println("", err)
-			break
+			fmt.Println("Error reading JSON:", err)
+			return
+		} else {
+			if message.Type == "logout" || message.Type == "login" {
+				hub.BroadcastMessage([]byte(message.Content))
+			} else {
+				hub.SendMessage([]byte(message.Content), message.Receiver, message.Sender)
+			}
 		}
-
 
 	}
 
-	hub.UnregisterClient(conn)
 }

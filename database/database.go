@@ -42,7 +42,7 @@ func InitDb() {
 	CreateSessionTable := `
 	CREATE TABLE IF NOT EXISTS sessions (
 		id TEXT PRIMARY KEY,
-		user_id TEXT NOT NULL,
+		user_id TEXT NOT NULL UNIQUE,
 		expiration DATE NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);`

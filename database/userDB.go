@@ -234,6 +234,7 @@ func GetpostHome() []*variables.Post {
 }
 
 func InsertSession(session_token string, user *variables.User) {
+	DeleteSessionFromUserID(user.ID)
 	InsertData :=
 		`
 	INSERT INTO sessions
@@ -247,6 +248,21 @@ func InsertSession(session_token string, user *variables.User) {
 	}
 	fmt.Println("Session inserted")
 
+}
+
+func DeleteSessionFromUserID(userID string) {
+	DeleteData :=
+		`
+	DELETE FROM sessions
+	WHERE user_id = ?;
+	`
+
+	_, err := DB.Exec(DeleteData, userID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Session deleted")
+	
 }
 
 func DeleteSession(session_token string) {
@@ -274,7 +290,6 @@ func GetNicknameByUserId(userID string) string {
 	`
 	err := DB.QueryRow(GetData, userID).Scan(&nickname)
 	if err != nil {
-		log.Fatal(err)
 	}
 	return nickname	
 
@@ -290,7 +305,6 @@ func GetUserIdBySession(id string) string {
 	`
 	err := DB.QueryRow(GetData, id).Scan(&userID)
 	if err != nil {
-		log.Fatal(err)
 	}
 	return userID
 }
