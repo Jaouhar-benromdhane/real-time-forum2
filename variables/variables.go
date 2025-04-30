@@ -1,7 +1,5 @@
 package variables
 
-import "time"
-
 type User struct {
 	ID        string `json:"id"`
 	Nickname  string `json:"nickname"`
@@ -37,9 +35,9 @@ type Message struct {
 }
 
 type Comment struct {
-	ID        int       `json:"id"`
-	PostID    int       `json:"post_id"`
-	UserID    string    `json:"user_id"` // <- modifié ici pour que ça soit un string
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int    `json:"id"`
+	PostID    int    `json:"post_id"`
+	User      *User  `json:"user"` // <- modifié ici pour que ça soit un string
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
 }

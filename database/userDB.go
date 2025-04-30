@@ -312,7 +312,7 @@ func InsertComment(comment *variables.Comment) {
 	query := `
 	INSERT INTO comments (content, post_id, user_id,created_at)
 	VALUES (?, ?, ?,?);`
-	_, err := DB.Exec(query, comment.Content, comment.PostID, comment.UserID, time.Now())
+	_, err := DB.Exec(query, comment.Content, comment.PostID, comment.User.ID, time.Now())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -337,10 +337,14 @@ func GetCommentsByPostID(postID int) []variables.Comment {
 
 	for rows.Next() {
 		var c variables.Comment
-		err := rows.Scan(&c.ID, &c.Content, &c.PostID, &c.UserID, &c.CreatedAt)
+		var userID string
+		var date time.Time
+		err := rows.Scan(&c.ID, &c.Content, &c.PostID, &userID, &date)
 		if err != nil {
 			log.Fatal(err)
 		}
+		c.User = GetUserByID(userID)
+		c.CreatedAt = date.Format("Mon 2 Jan 15:04")
 		comments = append(comments, c)
 	}
 	return comments

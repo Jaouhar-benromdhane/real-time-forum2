@@ -18,12 +18,15 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	var comment variables.Comment
 	err := json.NewDecoder(r.Body).Decode(&comment)
+	fmt.Println(comment, err)
 	if err != nil {
-		http.Error(w, "Données invalides", http.StatusBadRequest)
+		RespondJson(w, http.StatusBadRequest, map[string]any{
+			"error": "Erreur lors de la décodage du commentaire",
+		})
 		return
 	}
 
-	comment.UserID = user.ID
+	comment.User = user
 	database.InsertComment(&comment)
 
 	w.WriteHeader(http.StatusCreated)
@@ -41,7 +44,7 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 	comments := database.GetCommentsByPostID(postID)
 	fmt.Println(comments)
 	if len(comments) == 0 {
-		RespondJson(w, http.StatusNotFound, map[string]any{
+		RespondJson(w, http.StatusOK, map[string]any{
 			"error": "Aucun commentaire trouvé pour ce post",
 		})
 		return
