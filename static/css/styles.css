@@ -268,24 +268,21 @@ footer {
 
 /* Style pour les messages utilisateurs */
 .message {
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
   border-radius: var(--radius);
-  background-color: var(--secondary);
 }
 
 .message-own {
   background-color: var(--primary);
   color: var(--primary-foreground);
-  margin-left: auto;
-  max-width: 80%;
+  text-align: right;
 }
 
 .message-other {
   background-color: var(--secondary);
   color: var(--secondary-foreground);
-  margin-right: auto;
-  max-width: 80%;
+  text-align: left;
 }
 
 /* Pagination */
@@ -415,6 +412,7 @@ body.post-page {
     align-items: flex-start;
   }
 }
+
 /* Contenu textuel d'users */
 
 #users {
@@ -437,6 +435,8 @@ body.post-page {
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative; /* Pour le positionnement absolu du badge */
+  cursor: pointer;
 }
 
 .user {
@@ -538,4 +538,47 @@ body.post-page {
 .comment-form button:hover {
   background-color: var(--accent);
   color: var(--accent-foreground);
+}
+
+/* Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.notification-badge.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Animation de pulse pour les nouvelles notifications */
+@keyframes notification-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.notification-badge.pulse {
+  animation: notification-pulse 0.5s ease-in-out;
 }

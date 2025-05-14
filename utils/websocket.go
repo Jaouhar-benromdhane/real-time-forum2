@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"real-time-forum/variables"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -59,23 +60,24 @@ func (h *Hub) BroadcastMessage(message []byte) {
     }
 }
 
-func (h *Hub) SendMessage(message []byte, receiver string,sender string ){
+func (h *Hub) SendMessage(message variables.Message){
     h.mu.Lock()
     defer h.mu.Unlock()
     
     // Conversion en string puis création d'un JSON
-    messageString := string(message)
-    jsonMessage, _ := json.Marshal(map[string]string{"type": "message", "content": messageString, "sender": sender, "receiver": receiver})
+    // messageString := string(message)
+    // jsonMessage, _ := json.Marshal(map[string]string{"type": "message", "content": messageString, "sender": sender, "receiver": receiver})
     
     for conn := range h.clients {
-		if (h.clients[conn] != receiver) {
+		if (h.clients[conn] != message.Receiver) {
 			continue
 		}
-        err := conn.WriteJSON(jsonMessage)
+        err := conn.WriteJSON(message)
         if err != nil {
             conn.Close()
             delete(h.clients, conn)
         }
+		fmt.Println("Message sent to", h.clients[conn], ":", message.Content)
     }
 }
 

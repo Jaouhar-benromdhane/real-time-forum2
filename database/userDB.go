@@ -111,6 +111,7 @@ func GetPostByID(id int) *variables.Post {
 	return &post
 }
 
+
 func GetCurrentUser(r *http.Request) *variables.User {
 	cookie, err := r.Cookie("session")
 	if err != nil {
@@ -131,9 +132,9 @@ func GetCurrentUser(r *http.Request) *variables.User {
 
 }
 
-func GetAllUsers(r *http.Request) []map[string]any {
+func GetAllUsers( r *http.Request) []map[string]any {
 	user := GetCurrentUser(r)
-	if user == nil {
+	if user == nil {	
 		return nil
 	}
 	rows, err := DB.Query("SELECT * FROM users WHERE id != ?", user.ID)
@@ -144,7 +145,7 @@ func GetAllUsers(r *http.Request) []map[string]any {
 	defer rows.Close()
 
 	var users []map[string]any
-
+	
 	for rows.Next() {
 		var user variables.User
 		err := rows.Scan(&user.ID, &user.Nickname, &user.Age, &user.Gender, &user.FirstName, &user.LastName, &user.Email, &user.Password)
@@ -153,9 +154,9 @@ func GetAllUsers(r *http.Request) []map[string]any {
 			continue
 		}
 		users = append(users, map[string]any{
-			"user":      user,
-			"connected": checkIfUserConnected(user.ID)})
-	}
+		"user" : user,
+		"connected": checkIfUserConnected(user.ID),})
+}
 	if err := rows.Err(); err != nil {
 		log.Println("Error iterating over users:", err)
 		return nil
@@ -181,6 +182,7 @@ func checkIfUserConnected(user_id string) bool {
 	return false
 
 }
+
 
 func GetUserByID(id string) *variables.User {
 
@@ -261,7 +263,7 @@ func DeleteSessionFromUserID(userID string) {
 		log.Fatal(err)
 	}
 	fmt.Println("Session deleted")
-
+	
 }
 
 func DeleteSession(session_token string) {
@@ -276,7 +278,7 @@ func DeleteSession(session_token string) {
 		log.Fatal(err)
 	}
 	fmt.Println("Session deleted")
-
+	
 }
 
 func GetNicknameByUserId(userID string) string {
@@ -290,7 +292,7 @@ func GetNicknameByUserId(userID string) string {
 	err := DB.QueryRow(GetData, userID).Scan(&nickname)
 	if err != nil {
 	}
-	return nickname
+	return nickname	
 
 }
 
@@ -348,4 +350,40 @@ func GetCommentsByPostID(postID int) []variables.Comment {
 		comments = append(comments, c)
 	}
 	return comments
+}
+
+func InsertMessage(message *variables.Message) {
+	InsertData :=
+		`
+	INSERT INTO messages(sender_id, receiver_id, content, created_at)
+	VALUES (?, ?, ?, ?);
+	`
+
+	_, err := DB.Exec(InsertData, message.Sender, message.Receiver, message.Content, message.CreatedAt)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func GetMessages(sender string, receiver string) ([]*variables.Message,error) {
+	var messages []*variables.Message
+
+	GetData :=
+		`
+	SELECT sender_id, receiver_id, content, created_at FROM messages
+	WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?);
+	`
+	Rows, err := DB.Query(GetData, sender, receiver, receiver, sender)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for Rows.Next() {
+		var message variables.Message
+		err = Rows.Scan(&message.Sender, &message.Receiver, &message.Content, &message.CreatedAt)
+		if err != nil {
+			log.Fatal(err)
+		}
+		messages = append(messages, &message)
+	}
+	return messages, err
 }

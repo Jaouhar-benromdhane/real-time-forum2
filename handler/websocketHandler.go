@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"real-time-forum/database"
 	"real-time-forum/utils"
+	"real-time-forum/variables"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,12 +16,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type Message struct {
-	Type     string `json:"type"`
-	Sender   string `json:"sender"`
-	Receiver string `json:"receiver"`
-	Content  string `json:"content"`
-}
 
 func WebSocketHandler(w http.ResponseWriter, r *http.Request, hub *utils.Hub) {
 	// Upgrade the connection to a WebSocket
@@ -48,16 +43,20 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request, hub *utils.Hub) {
 
 	// Listen for messages from the client
 	for {
-		var message Message
+		var message variables.Message
 		err = (conn.ReadJSON(&message))
 		if err != nil {
 			fmt.Println("Error reading JSON:", err)
 			return
 		} else {
+			fmt.Println("Received message:", message)
 			if message.Type == "logout" || message.Type == "login" {
 				hub.BroadcastMessage([]byte(message.Content))
 			} else {
-				hub.SendMessage([]byte(message.Content), message.Receiver, message.Sender)
+				message.Sender = database.GetNicknameByUserId(session)
+				database.InsertMessage(&message)
+				hub.SendMessage(message)
+
 			}
 		}
 

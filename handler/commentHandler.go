@@ -33,6 +33,8 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(comment)
 }
 
+// test branch github
+
 func GetComments(w http.ResponseWriter, r *http.Request) {
 	postIDParam := r.URL.Path[len("/comment/"):]
 	if postIDParam == "" {

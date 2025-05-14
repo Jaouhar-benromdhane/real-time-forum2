@@ -37,9 +37,15 @@ export function loadLogin() {
     if (response.ok) {
       messageDiv.innerText = "Connexion réussie !";
 
-      // Redirection vers la page d’accueil (SPA)
-      navigateTo("home");
+      // Basculer l'affichage de la navigation
+      document.querySelector(".online").style.display = "block";
+      document.querySelector(".offline").style.display = "none";
+
+      // Initialiser la connexion WebSocket
       InitWS();
+
+      // Redirection vers la page d'accueil (SPA)
+      navigateTo("home");
     } else {
       const errorText = await response.text();
       messageDiv.innerText = "Erreur : " + errorText;

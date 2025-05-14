@@ -55,13 +55,22 @@ func InitDb() {
 
 	CreateCommentTable := `
 	CREATE TABLE IF NOT EXISTS comments (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	content TEXT NOT NULL,
-	post_id INTEGER NOT NULL,
-	user_id TEXT NOT NULL,
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY(post_id) REFERENCES posts(id),
-	FOREIGN KEY(user_id) REFERENCES users(id)
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		content TEXT NOT NULL,
+		post_id INTEGER NOT NULL,
+		user_id TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(post_id) REFERENCES posts(id),
+		FOREIGN KEY(user_id) REFERENCES users(id)
+	);`
+
+	CreatMessageTable := `
+	CREATE TABLE IF NOT EXISTS messages (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		sender_id TEXT NOT NULL,
+		receiver_id TEXT NOT NULL,
+		content TEXT NOT NULL,
+		created_at DATE DEFAULT (datetime('now', 'localtime'))
 );`
 
 	_, err = DB.Exec(CreateUserTable)
@@ -81,6 +90,10 @@ func InitDb() {
 		log.Fatal(err)
 	}
 	_, err = DB.Exec(CreateCommentTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = DB.Exec(CreatMessageTable)
 	if err != nil {
 		log.Fatal(err)
 	}
